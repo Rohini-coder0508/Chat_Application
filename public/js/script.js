@@ -89,7 +89,7 @@ function outputMessage(message) {
   if (username == message.username) {
     div.classList.add("right");
     div.classList.add("yourMessageColor");
-  } else if (message.username == "Chit-Chat") {
+  } else if (message.username == "CryptoChat") {
     div.classList.add("center");
   } else {
     div.classList.add("left");
