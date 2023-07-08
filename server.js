@@ -66,7 +66,7 @@ io.on("connection", (socket) => {
 
     pythonProcess.stdout.on("data", (decryptedMessage) => {
       // Emit the decrypted message back to the client
-      console.log(encryptedMessage, messager);
+      // console.log(encryptedMessage, messager);
       socket.emit("decryptedMessage", formatMessage(messager, decryptedMessage.toString(), false));
     });
   });
