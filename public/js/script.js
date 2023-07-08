@@ -8,8 +8,6 @@ const { username, room } = Qs.parse(location.search, {
   ignoreQueryPrefix: true,
 });
 
-console.log(username, room);
-
 const socket = io();
 
 //Join Chat Room
@@ -24,7 +22,7 @@ socket.on("roomUsers", ({ room, users }) => {
 socket.on("message", (message) => {
   
   if (message.isEncrypted==true) {
-    console.log(message);
+
     outputEncryptedMessage(message);
   } else {
     outputMessage(message);
