@@ -2,7 +2,7 @@ const path = require("path");
 const http = require("http");
 const express = require("express");
 const socketio = require("socket.io");
-const { spawn } = require("child_process");  
+const { spawn } = require("child_process");
 const formatMessage = require("./utils/message");
 const {
   userJoin,
@@ -29,7 +29,11 @@ io.on("connection", (socket) => {
     //Welcome current user
     socket.emit(
       "message",
-      formatMessage(botName, `Hi ${user.username}! Welcome to CryptoChat!`, false)
+      formatMessage(
+        botName,
+        `Hi ${user.username}! Welcome to CryptoChat!`,
+        false
+      )
     );
 
     //Broadcast when a user connects
@@ -51,23 +55,42 @@ io.on("connection", (socket) => {
   socket.on("chatMessage", (msg) => {
     const user = getCurrUser(socket.id);
 
-    const pythonProcess = spawn("python", ["encryption.py", "encrypt", msg]); //
+    if (msg[0] == "@") {
+      const pythonProcess = spawn("python", ["encryption.py", "encrypt", msg]); //
+      pythonProcess.stdout.on("data", (encryptedMessage) => {
+        // console.log(JSON.parse(encryptedMessage));
+        io.to(user.room).emit(
+          "message",
+          formatMessage(`${user.username}`, JSON.parse(encryptedMessage), true)
+        );
+      }); //
+    }
 
-    pythonProcess.stdout.on("data", (encryptedMessage) => {  //
-      // console.log(JSON.parse(encryptedMessage));
-      io.to(user.room).emit("message", formatMessage(`${user.username}`, JSON.parse(encryptedMessage), true));
-    });  //
+    else{
+      io.to(user.room).emit(
+        "message",
+        formatMessage(`${user.username}`, msg, false)
+      );
+    }
   });
 
   // Decrypt Message
   socket.on("decryptMessage", ({ encryptedMessage, secretKey, messager }) => {
     // Spawn a Python process to decrypt the message
-    const pythonProcess = spawn("python", ["encryption.py", "decrypt", encryptedMessage, secretKey]);
+    const pythonProcess = spawn("python", [
+      "encryption.py",
+      "decrypt",
+      encryptedMessage,
+      secretKey,
+    ]);
 
     pythonProcess.stdout.on("data", (decryptedMessage) => {
       // Emit the decrypted message back to the client
       // console.log(encryptedMessage, messager);
-      socket.emit("decryptedMessage", formatMessage(messager, decryptedMessage.toString(), false));
+      socket.emit(
+        "decryptedMessage",
+        formatMessage(messager, decryptedMessage.toString(), false)
+      );
     });
   });
 
