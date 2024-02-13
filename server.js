@@ -56,6 +56,7 @@ io.on("connection", (socket) => {
     const user = getCurrUser(socket.id);
 
     if (msg[0] == "@") {
+      msg = msg.slice(1);
       const pythonProcess = spawn("python", ["encryption.py", "encrypt", msg]); //
       pythonProcess.stdout.on("data", (encryptedMessage) => {
         // console.log(JSON.parse(encryptedMessage));
